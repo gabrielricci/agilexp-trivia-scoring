@@ -1,0 +1,12 @@
+{
+	"ImportPath": "github.com/gabrielricci/agilexp",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v80",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Comment": "v1.6.2-20-g08e7f80",
+			"Rev": "08e7f807d38d6a870193019bb439056118661505"
+		}
+	]
+}

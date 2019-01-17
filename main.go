@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -53,5 +55,5 @@ func main() {
 	router.HandleFunc("/user/{user_id}/stats", GetStatsHandler)
 	router.HandleFunc("/user/{user_id}/correct_answer", SaveCorrectAnswerHandler)
 	router.HandleFunc("/user/{user_id}/incorrect_answer", SaveIncorrectAnswerHandler)
-	log.Fatal(http.ListenAndServe(":8000", router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router))
 }

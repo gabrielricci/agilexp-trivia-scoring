@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -56,8 +56,10 @@ func main() {
 	router.HandleFunc("/user/{user_id}/correct_answer", SaveCorrectAnswerHandler)
 	router.HandleFunc("/user/{user_id}/incorrect_answer", SaveIncorrectAnswerHandler)
 
-	router.Headers("Access-Control-Allow-Origin", "*")
-	router.Headers("Access-Control-Allow-Methods", "GET, POST")
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router))
+	// with error handling
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }

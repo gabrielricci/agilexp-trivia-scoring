@@ -40,3 +40,12 @@ func SaveIncorrectAnswerHandler(w http.ResponseWriter, r *http.Request) {
 	GlobalAnswers = *(SaveAnswer(GlobalAnswers, user_id, false))
 	w.WriteHeader(201)
 }
+
+func RankingHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+
+	ranking := GetRanking(&GlobalAnswers)
+
+	json.NewEncoder(w).Encode(ranking)
+}

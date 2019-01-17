@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -19,7 +20,9 @@ func CreateAnswersDb() *UserAnswers {
 func SaveAnswer(answers UserAnswers, user_id string, is_correct bool) *UserAnswers {
 	user_answers, exists := answers[user_id]
 	if !exists {
-		user_answers = Answers{}
+		user_answers = Answers{
+			UserId: user_id,
+		}
 	}
 
 	if is_correct {
@@ -28,8 +31,34 @@ func SaveAnswer(answers UserAnswers, user_id string, is_correct bool) *UserAnswe
 		user_answers.Incorrect++
 	}
 
+	total_questions := user_answers.Correct + user_answers.Incorrect
+	score := (float32(user_answers.Correct) / float32(total_questions)) * 100
+	user_answers.Score = score
+
 	answers[user_id] = user_answers
 	return &answers
+}
+
+func GetRanking(answers *UserAnswers) []Answers {
+	var users_and_answers []Answers
+	for _, answer := range *answers {
+		users_and_answers = append(users_and_answers, answer)
+	}
+
+	sort.SliceStable(users_and_answers, func(i, j int) bool {
+		user1_score := users_and_answers[i].Score
+		user2_score := users_and_answers[j].Score
+		user1_correct := users_and_answers[i].Correct
+		user2_correct := users_and_answers[j].Correct
+
+		if user1_score == user2_score {
+			return user1_correct > user2_correct
+		}
+
+		return users_and_answers[i].Score > users_and_answers[j].Score
+	})
+
+	return users_and_answers
 }
 
 func GetTotalCorrectAnswers(answers *UserAnswers, user_id string) int {
@@ -55,6 +84,7 @@ func main() {
 	router.HandleFunc("/user/{user_id}/stats", GetStatsHandler)
 	router.HandleFunc("/user/{user_id}/correct_answer", SaveCorrectAnswerHandler)
 	router.HandleFunc("/user/{user_id}/incorrect_answer", SaveIncorrectAnswerHandler)
+	router.HandleFunc("/ranking", RankingHandler)
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})

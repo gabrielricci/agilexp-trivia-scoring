@@ -55,5 +55,9 @@ func main() {
 	router.HandleFunc("/user/{user_id}/stats", GetStatsHandler)
 	router.HandleFunc("/user/{user_id}/correct_answer", SaveCorrectAnswerHandler)
 	router.HandleFunc("/user/{user_id}/incorrect_answer", SaveIncorrectAnswerHandler)
+
+	router.Headers("Access-Control-Allow-Origin", "*")
+	router.Headers("Access-Control-Allow-Methods", "GET, POST")
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router))
 }
